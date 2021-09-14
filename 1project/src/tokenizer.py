@@ -37,15 +37,15 @@ def tokenize_text(file):
 
 
 # step 2: implement stopword removal
-def remove_stopwords(tokenized_text):
+def remove_stopwords(tokens):
     # step 0: read the text word by word or line by line.
     stopwords = set(line.strip() for line in open('stopwords.txt'))
-    text_no_sw = []
-    for word in tokenized_text:
-
+    vocab = []
+    for word in tokens:
         if word not in stopwords:
-            text_no_sw.append(word)
-    return text_no_sw
+            # word = stem(word)
+            vocab.append(word)
+    return vocab
 # step 3: Implement the first two steps of Porter stemming, as defined in the text. 
 """
 step 1a
@@ -62,30 +62,28 @@ step 1b
         dripping > drip), remove the last letter,
         or if the word is short, add e (hoping -> hope)
 """
-def porter_stemming(text):
-    stemmed = []
+def stem(word):
     vowels = "aeiou"
     stemSet = set("sses", "s", "ied", "ies", "ies" "eed", "eedly", "ed", "edly", "ing", "at", "bl", "iz", "ll", "ss", "zz")
-    for word in text:
-        if word.length == 1:
-            continue
-        for suffix in stemSet:
-            if word.endswith(suffix):
-                if suffix == "sses":
-                    word = word.replace(suffix, "ss")
-                elif suffix == "ied" or suffix == "ies":
-                    temp = word.replace(suffix, "ss")
-                    if temp.length > 1:
-                        word = word.replace(suffix, "i")
-                    else:
-                        word = word.replace(suffix, "ie")
-                elif suffix == "s":
-                    if word[-2] not in vowels:
-                        word = word.replace(word[-1], "")
-                elif suffix == "eed" or suffix == "eedly":
-                    # TODO: how to find FIRST non-vowel following a vowel
-                    continue
-    return stemmed
+    if word.length == 1:
+        return word
+    for suffix in stemSet:
+        if word.endswith(suffix):
+            if suffix == "sses":
+                word = word.replace(suffix, "ss")
+            elif suffix == "ied" or suffix == "ies":
+                temp = word.replace(suffix, "ss")
+                if temp.length > 1:
+                    word = word.replace(suffix, "i")
+                else:
+                    word = word.replace(suffix, "ie")
+            elif suffix == "s":
+                if word[-2] not in vowels:
+                    word = word.replace(word[-1], "")
+            elif suffix == "eed" or suffix == "eedly":
+                # TODO: how to find FIRST non-vowel following a vowel
+                continue
+    return word
 
 
 def tokenization(file):
@@ -96,10 +94,7 @@ def tokenization(file):
     return no_stopwords
 
 # testing
-# print(tokenize_text("tokenization-input-part-A.txt"))
-# print(remove_stopwords())
-
-# tokenization("tokenization-input-part-A.txt")
+tokenization("tokenization-input-part-A.txt")
 # word = "word"
 # print(word[-1])
 # vowels = "aeiou"
