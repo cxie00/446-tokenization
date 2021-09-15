@@ -48,7 +48,7 @@ def remove_stopwords(tokens):
             temp = word
             if len(word) != 1:
                 word = stem(word)
-                print(f'word:{temp} stemmed: {word}')
+                # print(f'word:{temp} stemmed: {word}')
                 vocab.append(word)
     return vocab
 # step 3: Implement the first two steps of Porter stemming, as defined in the text. 
@@ -71,11 +71,11 @@ def stem(word):
     vowels = "aeiouy"
     suffix = get_suffix(word)
     if suffix == "sses":
-        print(f'word: {word} suffix: {suffix}')
+        # print(f'word: {word} suffix: {suffix}')
         word = word.replace(suffix, "ss")
         return word
     elif suffix == "ied" or suffix == "ies":
-        print(f'word: {word} suffix: {"ies"}')
+        # print(f'word: {word} suffix: {"ies"}')
         temp = word.replace(suffix, "")
         if len(temp) > 1:
             word = word.replace(suffix, "i")
@@ -83,12 +83,12 @@ def stem(word):
             word = word.replace(suffix, "ie")
         return word
     elif suffix == "s":
-        print(f'word: {word} suffix: {suffix}')
+        # print(f'word: {word} suffix: {suffix}')
         if word[-2] == 'e' or word[-2] not in vowels:
             word = word[:-1]
         return word
     elif  suffix == "eed" or suffix == "eedly":
-        print(f'word: {word} suffix: {suffix}')
+        # print(f'word: {word} suffix: {suffix}')
         # TODO: how to find FIRST non-vowel following a vowel
         """
         Iterate through letter for first non vowel after a vowel
@@ -96,7 +96,7 @@ def stem(word):
             if yes, word = word.replace(suffix, "ee")
             else: break early
         """
-        print(f'{word} {suffix}')
+        # print(f'{word} {suffix}')
         first_vowel = False
         non_vowel = False
         for index in range(len(word)):
@@ -112,12 +112,11 @@ def stem(word):
                     break
         return word
     elif suffix == "ed" or suffix == "edly" or suffix == "ing" or suffix == "ingly":
-        print(f'word: {word} suffix: {suffix}')
-        temp = word.replace(suffix, "")
-        print(f'temp {temp}')
+        # print(f'word: {word} suffix: {suffix}')
+        temp = word.replace(suffix, "", 1)
         for letter in reversed(temp):
             if letter in vowels:
-                word = word.replace(suffix, "")
+                word = word.replace(suffix, "", 1)
                 if word.endswith("at") or word.endswith("bl") or word.endswith("iz"):
                     word += "e"
                 elif word[-1] == word[-2] and (word[-2:] != "ll" and word[-2:] != "ss" and word[-2:] != "zz"):
@@ -128,34 +127,31 @@ def stem(word):
     return word
 
 def get_suffix(word):
-    suffixSet1 = set(["sses", "ss", "us", "s", "ied", "ies", "eed", "eedly", "ed", "edly", "ing"])
-    suffix = ""
-    print("line 132")
     if word.endswith("sses"):
-        suffix = "sses"
+        return "sses"
     elif word.endswith("ss"):
-        return suffix
+        return ""
     elif word.endswith("us"):
-        return suffix
+        return ""
     elif word.endswith("s"):
-        suffix = "s"
+        return "s"
     elif word.endswith("ied"):
-        suffix = "ied"
+        return "ied"
     elif word.endswith("ies"):
-        suffix = "ies"
+        return "ies"
     elif word.endswith("eed"):
-        suffix = "eed"
+        return "eed"
     elif word.endswith("ed"):
-        print("line 148")
-        suffix == "ed"
+        return "ed"
     elif word.endswith("eedly"):
-        suffix = "eedly"
+        return "eedly"
     elif word.endswith("edly"):
-        suffix = "edly"
+        return "edly"
     elif word.endswith("ing"):
-        suffix = "ing"
-    print(f'suffix: {suffix}')
-    return suffix
+        return "ing"
+    elif word.endswith("ingly"):
+        return "ingly"
+    return ""
 
 def tokenization(file):
     tokenized = tokenize_text(file)
@@ -166,6 +162,6 @@ def tokenization(file):
 
 # testing
 # tokenization("tokenization-input-part-A.txt")
-tokenization("test2.txt")
+# tokenization("test2.txt")
 
-# tokenization("tokenization-input-part-B.txt")
+tokenization("tokenization-input-part-B.txt")
