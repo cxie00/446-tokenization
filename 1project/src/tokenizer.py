@@ -43,7 +43,9 @@ def remove_stopwords(tokens):
     vocab = []
     for word in tokens:
         if word not in stopwords:
-            # word = stem(word)
+            temp = word
+            word = stem(word)
+            # print(f'word:{temp} stemmed: {word}')
             vocab.append(word)
     return vocab
 # step 3: Implement the first two steps of Porter stemming, as defined in the text. 
@@ -63,26 +65,53 @@ step 1b
         or if the word is short, add e (hoping -> hope)
 """
 def stem(word):
-    vowels = "aeiou"
-    stemSet = set("sses", "s", "ied", "ies", "ies" "eed", "eedly", "ed", "edly", "ing", "at", "bl", "iz", "ll", "ss", "zz")
-    if word.length == 1:
+    vowels = "aeiouy"
+    suffixSet1 = set(["sses", "s", "ied", "ies", "ies" "eed", "eedly", "ed", "edly", "ing"])
+    suffixSet2 = set(["at", "bl", "iz" ])
+    if len(word) == 1:
         return word
-    for suffix in stemSet:
+    for suffix in suffixSet1:
         if word.endswith(suffix):
             if suffix == "sses":
                 word = word.replace(suffix, "ss")
             elif suffix == "ied" or suffix == "ies":
-                temp = word.replace(suffix, "ss")
-                if temp.length > 1:
+                temp = word.replace(suffix, "")
+                if len(temp) > 1:
                     word = word.replace(suffix, "i")
                 else:
                     word = word.replace(suffix, "ie")
             elif suffix == "s":
-                if word[-2] not in vowels:
+                if word[-2] == 'e' or word[-2] not in vowels:
                     word = word.replace(word[-1], "")
             elif suffix == "eed" or suffix == "eedly":
                 # TODO: how to find FIRST non-vowel following a vowel
-                continue
+                """
+                Iterate through letter for first non vowel after a vowel
+                then check for next vowel if = to suffix
+                    if yes, word = word.replace(suffix, "ee")
+                    else: break early
+                """
+            elif suffix == "ed" or suffix == "edly" or suffix == "ing" or suffix == "ingly":
+                # TODO:
+                temp = word.replace(suffix, "")
+                for letter in reversed(temp):
+                    # print(f'letter: {letter} temp: {temp}')
+                    if letter in vowels:
+                        word = word.replace(suffix, "")
+                        # print(f'word: {word}')
+                        if word.endswith("at") or word.endswith("bl") or word.endswith("iz"):
+                            # unit tested for pirated, pirating
+                            word += "e"
+                        elif word[-1] == word[-2] and (word[-2:] != "ll" and word[-2:] != "ss" and word[-2:] != "zz"):
+                            # print(f'word: {word}, word[-1]:{word[-1]}')
+                            # unit tested for
+                            word = word[:-1]
+                            # print(word)
+                        elif len(word) <= 3:
+                            # unit tested for hoping
+                            word += "e"
+                        # print("Break")
+                        break
     return word
 
 
@@ -94,9 +123,10 @@ def tokenization(file):
     return no_stopwords
 
 # testing
-tokenization("tokenization-input-part-A.txt")
+# tokenization("tokenization-input-part-A.txt")
+tokenization("test.txt")
 # word = "word"
-# print(word[-1])
+# print(word[-2:])
 # vowels = "aeiou"
 # if word[-2] not in vowels:
 #     word = word.replace(word[-1], "")
