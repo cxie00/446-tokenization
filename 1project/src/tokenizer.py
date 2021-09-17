@@ -1,6 +1,8 @@
+import sys
+
 def tokenize_text(file):
     # step 0: read the text word by word or line by line.
-    with open(file) as f:
+    with open(f"../test_text/{file}") as f:
         lines = f.readlines()
 
     tokenized = []
@@ -41,8 +43,7 @@ def remove_stopwords_stem(tokens):
     vocab = {}
     for word in tokens:
         if word not in stopwords:
-            temp = word
-            if len(word) != 1:
+            if len(word) >= 1:
                 word = stem(word)
                 # print(f'word:{temp} stemmed: {word}')
                 corpus.append(word)
@@ -72,8 +73,13 @@ def stem(word):
         return word
     elif suffix == "s":
         # print(f'word: {word} suffix: {suffix}')
-        if word[-2] == 'e' or word[-2] not in vowels:
-            word = word[:-1]
+        for index in range(len(word)):
+            if word[index] in vowels and index + 2 != len(word):
+                word = word[:-1]
+                return word
+        return word
+        # if word[-2] == 'e' or word[-2] not in vowels:
+        #     word = word[:-1]
         return word
     elif  suffix == "eed" or suffix == "eedly":
         # print(f'word: {word} suffix: {suffix}')
@@ -140,21 +146,25 @@ def get_suffix(word):
         return "ingly"
     return ""
 
-def tokenization(file):
-    tokenized = tokenize_text(file)
+def tokenization():
+    tokenized = tokenize_text(sys.argv[1])
     corpus, vocab = remove_stopwords_stem(tokenized)
+    sort_vocab = sorted(vocab.items(), key=lambda x: x[1], reverse=True)
+    count = 0 
+    for i in sort_vocab:
+        if count > 199:
+            break
+        count +=1
+        print(i[0], i[1])
+    print(f'num words in corpus: {len(corpus)} | num words in vocab: {len(vocab)}')
     return corpus, vocab
 
 # testing
-# tokenization("tokenization-input-part-A.txt")
-# tokenization("test2.txt")
+# corpus, vocab = tokenization("tokenization-input-part-A.txt")
+# corpus, vocab = tokenization("test2.txt")
 
-corpus, vocab = tokenization("tokenization-input-part-B.txt")
-sort_vocab = sorted(vocab.items(), key=lambda x: x[1], reverse=True)
-count = 0 
-for i in sort_vocab:
-    if count > 199:
-        break
-    count +=1
-    print(i[0], i[1])
-print(f'num words in corpus: {len(corpus)} | num words in vocab: {len(vocab)}')
+# corpus, vocab = tokenization("tokenization-input-part-B.txt")
+
+# word = "whales"
+# vowels = "aeiou"
+tokenization()
