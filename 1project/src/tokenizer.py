@@ -2,10 +2,9 @@ def tokenize_text(file):
     # step 0: read the text word by word or line by line.
     with open(file) as f:
         lines = f.readlines()
-        # print(lines)
+
     tokenized = []
     for line in lines:
-        # print(line)
         # step 1.1: all non-period punctuation is a word separator. remove punctuation
         # initializing punctuations string
         punc = '''!()-[]\{\};:'"\,<>/?@#$%^&*_~'''
@@ -34,42 +33,31 @@ def tokenize_text(file):
             tokenized.append(word)
     return tokenized
 
-# UPDATE 9/12/21: my tokenizer will separate urls and will keep single letter abbreviations together. f Ph.ds they can suffer.
-# should i remove one-letter words? i think they are important sometimes... .... ... 
-
-
 # step 2: implement stopword removal
-def remove_stopwords(tokens):
+def remove_stopwords_stem(tokens):
     # step 0: read the text word by word or line by line.
     stopwords = set(line.strip() for line in open('stopwords.txt'))
-    vocab = []
+    corpus = []
+    vocab = {}
     for word in tokens:
         if word not in stopwords:
             temp = word
             if len(word) != 1:
                 word = stem(word)
                 # print(f'word:{temp} stemmed: {word}')
-                vocab.append(word)
-    return vocab
+                corpus.append(word)
+                if word in vocab:
+                    vocab[word] += 1
+                else:
+                    vocab[word] = 1
+    return (corpus, vocab)
+
 # step 3: Implement the first two steps of Porter stemming, as defined in the text. 
-"""
-step 1a
-    - sses -> ss
-    - delete s if preceding word part contains a vowel not immediately beore the s
-    - replace ied or ies by i if preceded by more than one letter otherwise by ie
-    if suffix is us or ss do nothing
-step 1b
-    - replace eed, eedly by ee if it is in the part of the word after the non vowel
-        following a vowel
-    - delete ed, edly, ing, ingly if the preceding word part contains a vowel, 
-        and them if the word ends in at, bl, or iz add e, or if the word ends
-        with a double letter that is not ll, ss, or zz (Falling > fall, 
-        dripping > drip), remove the last letter,
-        or if the word is short, add e (hoping -> hope)
-"""
 def stem(word):
     vowels = "aeiouy"
     suffix = get_suffix(word)
+    if len(word) < 4:
+        return word
     if suffix == "sses":
         # print(f'word: {word} suffix: {suffix}')
         word = word.replace(suffix, "ss")
@@ -89,7 +77,6 @@ def stem(word):
         return word
     elif  suffix == "eed" or suffix == "eedly":
         # print(f'word: {word} suffix: {suffix}')
-        # TODO: how to find FIRST non-vowel following a vowel
         """
         Iterate through letter for first non vowel after a vowel
         then check for next vowel if = to suffix
@@ -155,13 +142,19 @@ def get_suffix(word):
 
 def tokenization(file):
     tokenized = tokenize_text(file)
-    # print(f'tokenized: {tokenized}')
-    no_stopwords = remove_stopwords(tokenized)
-    print(f'no stopwords: {no_stopwords}')
-    return no_stopwords
+    corpus, vocab = remove_stopwords_stem(tokenized)
+    return corpus, vocab
 
 # testing
 # tokenization("tokenization-input-part-A.txt")
 # tokenization("test2.txt")
 
-tokenization("tokenization-input-part-B.txt")
+corpus, vocab = tokenization("tokenization-input-part-B.txt")
+sort_vocab = sorted(vocab.items(), key=lambda x: x[1], reverse=True)
+count = 0 
+for i in sort_vocab:
+    if count > 199:
+        break
+    count +=1
+    print(i[0], i[1])
+print(f'num words in corpus: {len(corpus)} | num words in vocab: {len(vocab)}')
