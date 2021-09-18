@@ -1,18 +1,16 @@
 import sys
+import matplotlib.pyplot as plt
 
 def tokenize_text(file):
     # step 0: read the text word by word or line by line.
     with open(f"../test_text/{file}") as f:
         lines = f.readlines()
-
     tokenized = []
     for line in lines:
         # step 1.1: all non-period punctuation is a word separator. remove punctuation
-        # initializing punctuations string
-        punc = '''!()-[]\{\};:'"\,<>/?@#$%^&*_~'''
-        # removing punctuations in string
+        punctuation = '''!()-[]\{\};:'"\,<>/?@#$%^&*_~'''
         for elem in line:
-            if elem in punc:
+            if elem in punctuation:
                 line = line.replace(elem, " ")
         # step 1.2: period and abbrev. checking
         length = len(line)
@@ -41,16 +39,29 @@ def remove_stopwords_stem(tokens):
     stopwords = set(line.strip() for line in open('stopwords.txt'))
     corpus = []
     vocab = {}
+    counter = 0
+    x = []
+    y = []
     for word in tokens:
         if word not in stopwords:
             if len(word) >= 1:
                 word = stem(word)
-                # print(f'word:{temp} stemmed: {word}')
                 corpus.append(word)
                 if word in vocab:
                     vocab[word] += 1
                 else:
                     vocab[word] = 1
+    # UNCOMMENT LINES 55-64 TO DISPLAY GRAPH.
+    #             counter += 1
+    #             if counter % 10 == 0:
+    #                 x.append(len(corpus))
+    #                 y.append(len(vocab))
+    # # plotting the points
+    # plt.plot(x, y)
+    # plt.xlabel('Words in Collection')
+    # plt.ylabel('Words in Vocab')
+    # plt.title('Vocabulary Growth of the Inputed File by Chloe Xie')
+    # plt.show()
     return (corpus, vocab)
 
 # step 3: Implement the first two steps of Porter stemming, as defined in the text. 
@@ -60,11 +71,9 @@ def stem(word):
     if len(word) < 4:
         return word
     if suffix == "sses":
-        # print(f'word: {word} suffix: {suffix}')
         word = word.replace(suffix, "ss")
         return word
     elif suffix == "ied" or suffix == "ies":
-        # print(f'word: {word} suffix: {"ies"}')
         temp = word.replace(suffix, "")
         if len(temp) > 1:
             word = word.replace(suffix, "i")
@@ -72,24 +81,18 @@ def stem(word):
             word = word.replace(suffix, "ie")
         return word
     elif suffix == "s":
-        # print(f'word: {word} suffix: {suffix}')
         for index in range(len(word)):
             if word[index] in vowels and index + 2 != len(word):
                 word = word[:-1]
                 return word
         return word
-        # if word[-2] == 'e' or word[-2] not in vowels:
-        #     word = word[:-1]
-        return word
     elif  suffix == "eed" or suffix == "eedly":
-        # print(f'word: {word} suffix: {suffix}')
         """
         Iterate through letter for first non vowel after a vowel
         then check for next vowel if = to suffix
             if yes, word = word.replace(suffix, "ee")
             else: break early
         """
-        # print(f'{word} {suffix}')
         first_vowel = False
         non_vowel = False
         for index in range(len(word)):
@@ -105,7 +108,6 @@ def stem(word):
                     break
         return word
     elif suffix == "ed" or suffix == "edly" or suffix == "ing" or suffix == "ingly":
-        # print(f'word: {word} suffix: {suffix}')
         temp = word.replace(suffix, "", 1)
         for letter in reversed(temp):
             if letter in vowels:
@@ -159,12 +161,4 @@ def tokenization():
     print(f'num words in corpus: {len(corpus)} | num words in vocab: {len(vocab)}')
     return corpus, vocab
 
-# testing
-# corpus, vocab = tokenization("tokenization-input-part-A.txt")
-# corpus, vocab = tokenization("test2.txt")
-
-# corpus, vocab = tokenization("tokenization-input-part-B.txt")
-
-# word = "whales"
-# vowels = "aeiou"
 tokenization()
